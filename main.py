@@ -1,3 +1,6 @@
+import os
+
+
 def get_ingredients(file):
     cook_book = {}
     ingr_inside = {}
@@ -40,58 +43,26 @@ def get_shop_list_by_dishes(dishes, person_count: int):
     return products_dict_prod
 
 
-def join_files(*files):
-    with open(files[0]) as f:
-        file1_name = f.name
-        file1_content = f.read()
-        lines1 = file1_content.count('\n')
-
-    with open(files[1], encoding='UTF-8') as f:
-        file2_name = f.name
-        file2_content = f.read()
-        lines2 = file2_content.count('\n')
-
-    with open(files[2], encoding='UTF-8') as f:
-        file3_name = f.name
-        file3_content = f.read()
-        lines3 = file3_content.count('\n')
-
-    shortest = min(lines1, lines2, lines3)
-    biggest = max(lines1, lines2, lines3)
-
-    with open("recipes/file_for_join.txt", 'w') as f:
-        if lines1 == shortest and lines2 == biggest:
-            f.write(f'{file1_name}\n')
-            f.write(f'{str(lines1)}\n')
-            f.write(f'{file1_content}\n')
-            f.write(f'{file3_name}\n')
-            f.write(f'{str(lines3)}\n')
-            f.write(f'{file3_content}\n')
-            f.write(f'{file2_name}\n')
-            f.write(f'{str(lines2)}\n')
-            f.write(f'{file2_content}\n')
-        elif lines2 == shortest and lines3 == biggest:
-            f.write(f'{file2_name}\n')
-            f.write(f'{str(lines2)}\n')
-            f.write(f'{file2_content}\n')
-            f.write(f'{file1_name}\n')
-            f.write(f'{str(lines1)}\n')
-            f.write(f'{file1_content}\n')
-            f.write(f'{file3_name}\n')
-            f.write(f'{str(lines3)}\n')
-            f.write(f'{file3_content}\n')
-        else:
-            f.write(f'{file3_name}\n')
-            f.write(f'{str(lines3)}\n')
-            f.write(f'{file3_content}\n')
-            f.write(f'{file2_name}\n')
-            f.write(f'{str(lines2)}\n')
-            f.write(f'{file2_content}\n')
-            f.write(f'{file1_name}\n')
-            f.write(f'{str(lines1)}\n')
-            f.write(f'{file1_content}\n')
+def join_files(path):
+    count_lines = {}
+    for file in os.listdir(path):
+        if file == 'file_for_join.txt':
+            continue
+        file_path = '{}{}'.format(path, file)
+        with open(file_path) as f:
+            content = f.readlines()
+            count_lines[file] = len(content)
+            count_lines = dict(sorted(count_lines.items(), key=lambda x: x[1]))
+    for key, value in count_lines.items():
+        with open(path+key) as f:
+            content_in_cycle = f.readlines()
+        with open("recipes/file_for_join.txt", 'a') as f:
+            f.write(f'{key}\n')
+            f.write(f'{str(value)}\n')
+            f.write(''.join(content_in_cycle))
+            f.write('\n')
 
 
 get_ingredients("recipes/Recipe.txt")
 get_shop_list_by_dishes(['Омлет', "Запеченный картофель", "Фахитос"], 3)
-join_files("recipes/Recipe.txt", "recipes/new_recipes.txt", "recipes/new_new_recipes.txt")
+join_files("recipes/")
